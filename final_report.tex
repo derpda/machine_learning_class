@@ -1,0 +1,67 @@
+\documentclass[a4paper]{article}
+\usepackage{xeCJK}
+\setCJKmainfont{IPAMincho}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{subcaption}
+
+\author{Peter Spalthoff, 18M30829, 情報工学コース}
+\title{Final report}
+
+\begin{document}
+\maketitle
+\section{Problem 1}
+I implemented both the batch steepest gradient and the Newton optimization for
+binary classification using linear logistic regression. The code can be found at
+\url{https://github.com/derpda/machine_learning_class.git}.
+
+Figure~\ref{fig:weights_data} shows the result of the fitting for a data set of
+200 data points created the same way as the provided dataset II\@. Training is
+done for 100 iterations over the data set. The resulting class separation varies
+slightly between the two algorithms, but both achieved an accuracy of 85\% on
+this data set.
+
+Training was also tried with mini-batches of size 16. For some of these
+executions, the loss function increased. This happened particularly when the
+initial weights were already close to optimal. When training for more epochs,
+the loss function seems to stabilize at a point higher than previously attained
+minimum values. This suggests that the applied methods do not reliably seek a
+minimum of the loss function. Maybe, there is some error or numerical
+instability in the calculation of the loss function. The behavior is as
+expected for most executions and the values are in the same general range.
+
+The prediction accuracy increased even in the cases where the loss function
+increased. This is surprising and may be due to an error in the code. However, I
+was not able to find the source of this issue. Training with all data points at
+the same time did not show the same issue. Thus, all results presented are drawn
+from training where all data points where used for a single weight update.
+
+\begin{figure}[hbt]
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{./tex_subfiles/weights_data_before.pdf}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{./tex_subfiles/weights_data_after.pdf}
+    \end{subfigure}
+    \caption{The used data set along with the prediction border. The left figure
+    shows the initial state and the right figure shows the state after 100
+    iterations over the data for the respective optimization methods.}\label{fig:weights_data}
+\end{figure}
+
+Figure~\ref{fig:sgd_vs_newton} shows the development of the value of the loss
+function for the iterations over the data (epochs). Clearly, the Newton
+optimization method yields much faster convergence than the batch SGD version.
+For some created data, the SGD method seems to converge faster in contradiction
+to the theory presented in the lecture. The Newton approach seems to be unstable
+in some situations.
+
+\begin{figure}[hbt]
+    \includegraphics[width=\linewidth]{./tex_subfiles/sgd_vs_newton.pdf}
+    \caption{The value of the loss function at each epoch plotted for batch SGD
+    and Newton optimization.}\label{fig:sgd_vs_newton}
+\end{figure}
+
+\section{Problem 2}
+
+\end{document}
