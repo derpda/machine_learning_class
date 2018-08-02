@@ -1,5 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
+
+from utils import plot_loss, plot_data
 
 
 def create_data(n):
@@ -64,54 +65,6 @@ class Newton(LinLogRegression):
         self.weight -= self.learning_rate * np.dot(
             self.hessian(x, y), self.loss_gradient(x, y))
         return self.loss(x, y)
-
-
-def plot_data(sgd_weight, newton_weight, x, y, name):
-    fig, ax = plt.subplots()
-    ax.scatter(x[:, 0], x[:, 1], c=y)
-    test_pts = np.arange(x[:, 0].min(), x[:, 0].max(), 0.1)
-    ax.plot(
-        test_pts,
-        -sgd_weight[0]*test_pts/sgd_weight[1],
-        label='SGD classification',
-        color='blue'
-    )
-    ax.plot(
-        test_pts,
-        -newton_weight[0]*test_pts/newton_weight[1],
-        label='Newton classification',
-        color='red'
-    )
-    ax.axis([
-        x[:, 0].min()*1.1, x[:, 0].max()*1.1,
-        x[:, 1].min()*1.1, x[:, 1].max()*1.1
-    ])
-    ax.legend()
-    ax.set(
-        xlabel='Dimension 1',
-        ylabel='Dimension 2'
-    )
-    fig.tight_layout()
-    fig.savefig('./{}.pdf'.format(name))
-    plt.show()
-
-
-def plot_loss(sgd_loss_hist, newton_loss_hist):
-    fig, ax = plt.subplots()
-    ax.scatter(
-        np.arange(0, len(sgd_loss_hist)), sgd_loss_hist,
-        color='blue', label='Batch SGD loss')
-    ax.scatter(
-        np.arange(0, len(newton_loss_hist)), newton_loss_hist,
-        color='red', label='Newton loss')
-    ax.legend()
-    ax.set(
-        xlabel='Epoch',
-        ylabel='Loss function value'
-    )
-    fig.tight_layout()
-    fig.savefig('./sgd_vs_newton.pdf')
-    plt.show()
 
 
 if __name__ == '__main__':

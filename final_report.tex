@@ -1,6 +1,12 @@
 \documentclass[a4paper]{article}
 \usepackage{xeCJK}
 \setCJKmainfont{IPAMincho}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\matr}[1]{\mathbf{#1}}
+
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{hyperref}
@@ -62,6 +68,110 @@ in some situations.
     and Newton optimization.}\label{fig:sgd_vs_newton}
 \end{figure}
 
-\section{Problem 2}
+\section{Problem 3}
+We start from the primary problem
+\begin{equation*}
+    \argmin_{\vec{w}}\left(\sum_{i=1}^{n}\max(0,1-y_i\vec{w}^T\vec{x}_i)
+    + \lambda\rVert\vec{w}\lVert_2^2\right)
+\end{equation*}
+and introduce the slack variable $\epsilon_i=\max(0,1-y_i\vec{w}^T\vec{x}_i)$.
+It has the constraints $\epsilon_i\geq0$ and
+$y_i\vec{w}^T\vec{x}_i-1+\epsilon_i\geq0$.
+Thus the new primary problem is
+\begin{equation*}
+    \argmin_{\vec{w}} \sum_{i=1}^{n}\epsilon_i + \lambda\rVert\vec{w}\lVert_2^2
+\end{equation*}
+We now formulate the Lagrangian as
+\begin{equation}\label{eq:primary_lagrange}
+    L(\vec{w}, \vec{\epsilon}) =
+    \sum_{i=1}^{n}\epsilon_i
+    + \lambda\rVert\vec{w}\lVert_2^2
+    - \sum_{i=1}^{n}\alpha_i(y_i\vec{w}^T\vec{x}_i - 1 + \epsilon_i)
+    - \sum_{i=1}^{n}\beta_i\epsilon_i
+\end{equation}
+Now we evaluate the first Karush-Khan-Tucker condition. We start with the
+derivative for $\vec{w}$
+\begin{equation*}
+    \frac{\partial L}{\partial\vec{w}} =
+    2\lambda\vec{w}
+    - \sum_{i=1}^{n}\alpha_iy_i\vec{x}_i \stackrel{!}{=} 0
+\end{equation*}
+from which it is clear that
+\begin{equation}\label{eq:w_representation}
+    \vec{w} = \frac{1}{2\lambda}\sum_{i=1}^{n}\alpha_iy_i\vec{x}_i
+\end{equation}
+which is the solution to the second sub-problem.
+
+We continue with the derivative for $\vec{\epsilon}$
+\begin{equation*}
+    \frac{\partial L}{\partial\vec{\epsilon}} =
+    \vec{1} - \vec{\alpha} - \vec{\beta} \stackrel{!}{=} \vec{0}
+\end{equation*}
+where $\vec{0}$ is a vector with only 0's and $\vec{1}$ accordingly a vector
+with only 1's.
+
+From this, we can derive
+\begin{equation}\label{eq:a_representation}
+    \alpha_i = 1 - \beta_i
+\end{equation}
+Also, with the KKT-conditions, we know $\vec{\alpha}\geq\vec{0}$ and
+$\vec{\beta}\geq\vec{0}$ and thus
+\begin{equation}\label{eq:a_condition}
+    \vec{0} \geq \vec{\alpha} \geq \vec{1}
+\end{equation}
+Now we slightly rewrite the Lagrangian of the primary problem (see
+equation~\ref{eq:primary_lagrange}) as
+\begin{equation*}
+    L(\vec{w}, \vec{\epsilon}) =
+    \sum_{i=1}^{n}(1-\beta_i)\epsilon_i
+    - \sum_{i=1}^{n}\alpha_i\epsilon_i
+    + \lambda\rVert\vec{w}\lVert_2^2
+    - \sum_{i=1}^{n}\alpha_iy_i\vec{w}^T\vec{x}_i
+    + \sum_{i=1}^{n}\alpha_i
+\end{equation*}
+and continue by inserting the results from equation~\ref{eq:w_representation}
+and equation~\ref{eq:a_representation} (while taking care of correct sum
+indices) to get
+\begin{equation*}
+\begin{split}
+    L(\vec{\alpha}, \vec{\beta}) =
+    &\sum_{i=1}^{n}(1-\beta_i)\epsilon_i
+    - \sum_{i=1}^{n}(1-\beta_i)\epsilon_i
+    + \lambda\left\rVert\
+        \frac{1}{2\lambda}\sum_{i=1}^{n}\alpha_iy_i\vec{x}_i
+    \right\lVert_2^2\\
+    &- \sum_{i=1}^{n}\alpha_iy_i
+    \left(\frac{1}{2\lambda}
+        \sum_{j=1}^{n}\alpha_jy_j\vec{x}_j^T
+    \right)\vec{x}_i
+    + \sum_{i=1}^{n}\alpha_i
+\end{split}
+\end{equation*}
+The first two terms eliminate each other. We can rewrite the third term by
+explicitly writing the L2 norm as $\lVert\vec{w}\rVert_2^2=\vec{w}^T\vec{w}$,
+and thus
+\begin{equation*}
+\begin{split}
+    L(\vec{\alpha}) &= \frac{1}{4\lambda}
+    \sum_{i=1}^{n}\sum_{j=1}^{n}\alpha_iy_iy_j\vec{x}_i^T\vec{x}_j\alpha_j
+    - \frac{1}{2\lambda}
+    \sum_{i=1}^{n}\sum_{j=1}^{n}\alpha_iy_iy_j\vec{x}_i^T\vec{x}_j\alpha_j
+    + \sum_{i=1}^{n}\alpha_i\\
+    &= \sum_{i=1}^{n}\alpha_i
+    - \frac{1}{4\lambda}
+    \sum_{i=1}^{n}\sum_{j=1}^{n}\alpha_iy_iy_j\vec{x}_i^T\vec{x}_j\alpha_j
+\end{split}
+\end{equation*}
+Note that this term does no longer depend on $\vec{\beta}$. This is the dual
+problem of the SVM\@. As the primary problem was a minimization, the dual problem
+is a maximization problem. Writing this in matrix-vector form with
+$\matr{K}=y_iy_j\vec{x}_i^T\vec{x}_j$ yields, together with the condition from
+equation~\ref{eq:a_condition}, the desired result
+\begin{equation*}
+    \argmax_{\vec{\alpha}}\left(
+        - \frac{1}{4\lambda}\vec{\alpha}^T\matr{K}\vec{\alpha}
+        + \vec{\alpha}^T\vec{1}
+    \right)
+\end{equation*}
 
 \end{document}
