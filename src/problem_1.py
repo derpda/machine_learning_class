@@ -1,14 +1,6 @@
 import numpy as np
 
-from utils import plot_loss, plot_data
-
-
-def create_data(n):
-    omega = np.random.randn(1)[0]
-    noise = 0.5*np.random.randn(n)
-    x = np.random.randn(n, 2)
-    y = 2*(omega * x[:, 0] + x[:, 1] + noise > 0) - 1
-    return x, y
+from utils import create_data_2, plot_loss, plot_data
 
 
 class LinLogRegression():
@@ -67,16 +59,21 @@ class Newton(LinLogRegression):
         return self.loss(x, y)
 
 
-if __name__ == '__main__':
+def main():
     n = 200
     batch_n = 16
     epochs = 500
     learning_rate = 0.003
     reg_constant = 1
-    x, y = create_data(n)
+    x, y = create_data_2(n)
     sgd = BatchSGD(learning_rate, reg_constant)
     newton = Newton(learning_rate, reg_constant)
-    plot_data(sgd.weight, newton.weight, x, y, 'weights_data_before')
+    plot_data(
+        [sgd.weight, newton.weight],
+        ['SGD classification', 'Newton classification'],
+        x, y,
+        'weights_data_before'
+    )
     sgd_loss_hist = []
     newton_loss_hist = []
     for epoch in range(epochs):
@@ -89,8 +86,17 @@ if __name__ == '__main__':
         sgd_loss_hist.append(loss)
         loss, accuracy = newton.evaluate(x, y)
         newton_loss_hist.append(loss)
-    plot_data(sgd.weight, newton.weight, x, y, 'weights_data_after')
-    plot_loss(sgd_loss_hist, newton_loss_hist)
+    plot_data(
+        [sgd.weight, newton.weight],
+        ['SGD classification', 'Newton classification'],
+        x, y,
+        'weights_data_after'
+    )
+    plot_loss(
+        [sgd_loss_hist, newton_loss_hist],
+        ['Batch SGD loss', 'Newton loss'],
+        'sgd_vs_newton'
+    )
     loss, accuracy = sgd.evaluate(x, y)
     print(
         'SGD evaluation__________\nLoss\t: {:2.4f}\nAccuracy: {:2.4f}'.format(
@@ -102,3 +108,7 @@ if __name__ == '__main__':
         'Newton evaluation_______\nLoss\t: {:2.4f}\nAccuracy: {:2.4f}'.format(
             loss, accuracy)
     )
+
+
+if __name__ == '__main__':
+    main()

@@ -1,2 +1,4 @@
 **/*.pdf
 tex_out
+
+**/__pycache__
